@@ -299,36 +299,6 @@ Title: "Ultima Online - "
 - **Max Actions**: Sınırsız
 - **Max Repeat**: 999,999
 
-## 🆕 Changelog
-
-### v3.1 (FINAL) - 17.11.2024
-```
-✅ Background input (arka planda çalışır)
-✅ Modifier keys (Ctrl+F1, Alt+A, Shift+Tab)
-✅ System tray minimize
-✅ Window title değiştirme
-✅ Enhanced client scanner (3 method)
-✅ Zamanlanmış bitirme
-✅ Menu bar + shortcuts
-```
-
-### v2.2 - 17.11.2024
-```
-✅ Hybrid client scanner
-✅ AssistUO detection
-```
-
-### v2.1 - 17.11.2024
-```
-✅ Client scanner fixed
-✅ Scheduled completion
-```
-
-### v1.0 - 17.11.2024
-```
-✅ Initial release
-```
-
 ## 📄 Lisans
 
 MIT License - Özgürce kullanabilirsiniz.
@@ -341,7 +311,4 @@ Bu yazılım eğitim amaçlıdır. Ultima Online veya diğer oyunlarda kullanım
 
 **Geliştirici:** Caner  
 **Versiyon:** 3.1 FINAL  
-**Tarih:** 17 Kasım 2024  
 **Özellikler:** Background Input | Modifier Keys | System Tray | Scheduled Time
-
-**🔥 TAM ÖZELLİKLİ SÜRÜM - HAZIR! 🔥**
