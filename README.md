@@ -254,7 +254,6 @@ Gerekli sebep: `PostMessage` API'si elevated haklar gerektirir
 ```
 1. Yönetici olarak çalıştır
 2. Client doğru seçilmiş mi kontrol et
-3. Antivirus kapalı mı kontrol et
 ```
 
 ### Modifier Keys Çalışmıyor?
