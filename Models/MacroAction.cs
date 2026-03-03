@@ -8,11 +8,14 @@ namespace MacroMan.Models
         public string HotkeyName { get; set; }          // F1, F2, A, B, Sol, Sag, vs.
         public int WaitTimeMs { get; set; }             // Bekleme süresi (ms)
         public ActionType ActionType { get; set; }       // TusaBas, Click, Yaz
-        
+
+        public bool Status { get; set; } = true; // durum
+
         // Modifier keys
         public bool UseCtrl { get; set; }
         public bool UseAlt { get; set; }
         public bool UseShift { get; set; }
+
         
         // Click
         public int? ClickX { get; set; }

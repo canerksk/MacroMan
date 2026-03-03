@@ -1,7 +1,8 @@
+using MacroMan.Models;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using MacroMan.Models;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MacroMan.Forms
 {
@@ -95,6 +96,7 @@ namespace MacroMan.Forms
             chkCtrl.Checked = MacroAction.UseCtrl;
             chkAlt.Checked = MacroAction.UseAlt;
             chkShift.Checked = MacroAction.UseShift;
+            chkStatus.Checked = MacroAction.Status;
 
             if (MacroAction.ActionType == ActionType.Click)
             {
@@ -111,6 +113,28 @@ namespace MacroMan.Forms
 
         private void BtnOk_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(numWaitTime.Text))
+            {
+                numWaitTime.Text = numWaitTime.Minimum.ToString();
+                MessageBox.Show("Lütfen bir bekleme süresi girin.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (numWaitTime.Text.Length <= 0)
+            {
+                numWaitTime.Text = numWaitTime.Minimum.ToString();
+                MessageBox.Show("Lütfen bir bekleme süresi girin.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int _numWaitTime = int.Parse(numWaitTime.Text);
+            if (_numWaitTime < 100)
+            {
+                numWaitTime.Text = numWaitTime.Minimum.ToString();
+                MessageBox.Show("Bekleme süresi 100 msden düşük olmamalıdır.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Validation
             if (cmbHotkey.SelectedItem == null)
             {
@@ -122,6 +146,7 @@ namespace MacroMan.Forms
             MacroAction.HotkeyName = cmbHotkey.SelectedItem.ToString();
             MacroAction.WaitTimeMs = (int)numWaitTime.Value;
             MacroAction.ActionType = (ActionType)cmbActionType.SelectedIndex;
+            MacroAction.Status = chkStatus.Checked;
 
             // Modifier keys
             MacroAction.UseCtrl = chkCtrl.Checked;

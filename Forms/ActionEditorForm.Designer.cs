@@ -59,6 +59,7 @@ namespace MacroMan.Forms
             txtText = new TextBox();
             btnOk = new Button();
             btnCancel = new Button();
+            chkStatus = new CheckBox();
             grpModifiers.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numWaitTime).BeginInit();
             pnlClick.SuspendLayout();
@@ -81,7 +82,7 @@ namespace MacroMan.Forms
             cmbHotkey.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbHotkey.Location = new Point(20, 43);
             cmbHotkey.Name = "cmbHotkey";
-            cmbHotkey.Size = new Size(200, 23);
+            cmbHotkey.Size = new Size(85, 23);
             cmbHotkey.TabIndex = 1;
             // 
             // grpModifiers
@@ -90,7 +91,7 @@ namespace MacroMan.Forms
             grpModifiers.Controls.Add(chkAlt);
             grpModifiers.Controls.Add(chkShift);
             grpModifiers.Controls.Add(lblModifierExample);
-            grpModifiers.Location = new Point(230, 20);
+            grpModifiers.Location = new Point(233, 20);
             grpModifiers.Name = "grpModifiers";
             grpModifiers.Size = new Size(240, 70);
             grpModifiers.TabIndex = 2;
@@ -136,7 +137,7 @@ namespace MacroMan.Forms
             // lblWaitTime
             // 
             lblWaitTime.AutoSize = true;
-            lblWaitTime.Location = new Point(20, 105);
+            lblWaitTime.Location = new Point(111, 20);
             lblWaitTime.Name = "lblWaitTime";
             lblWaitTime.Size = new Size(116, 15);
             lblWaitTime.TabIndex = 3;
@@ -145,17 +146,18 @@ namespace MacroMan.Forms
             // numWaitTime
             // 
             numWaitTime.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-            numWaitTime.Location = new Point(20, 130);
+            numWaitTime.Location = new Point(111, 44);
             numWaitTime.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
+            numWaitTime.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
             numWaitTime.Name = "numWaitTime";
-            numWaitTime.Size = new Size(200, 23);
+            numWaitTime.Size = new Size(116, 23);
             numWaitTime.TabIndex = 4;
             numWaitTime.Value = new decimal(new int[] { 1000, 0, 0, 0 });
             // 
             // lblActionType
             // 
             lblActionType.AutoSize = true;
-            lblActionType.Location = new Point(240, 105);
+            lblActionType.Location = new Point(167, 96);
             lblActionType.Name = "lblActionType";
             lblActionType.Size = new Size(60, 15);
             lblActionType.TabIndex = 5;
@@ -164,10 +166,10 @@ namespace MacroMan.Forms
             // cmbActionType
             // 
             cmbActionType.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbActionType.Items.AddRange(new object[] { "TuşaBas", "Click", "Yaz" });
-            cmbActionType.Location = new Point(240, 130);
+            cmbActionType.Items.AddRange(new object[] { "TuşaBas", "Click ", "Yaz" });
+            cmbActionType.Location = new Point(233, 93);
             cmbActionType.Name = "cmbActionType";
-            cmbActionType.Size = new Size(230, 23);
+            cmbActionType.Size = new Size(240, 23);
             cmbActionType.TabIndex = 6;
             cmbActionType.SelectedIndexChanged += CmbActionType_SelectedIndexChanged;
             // 
@@ -184,9 +186,9 @@ namespace MacroMan.Forms
             pnlClick.Controls.Add(lblClickType);
             pnlClick.Controls.Add(cmbClickType);
             pnlClick.Controls.Add(lblMousePosInfo);
-            pnlClick.Location = new Point(20, 160);
+            pnlClick.Location = new Point(20, 122);
             pnlClick.Name = "pnlClick";
-            pnlClick.Size = new Size(450, 165);
+            pnlClick.Size = new Size(453, 165);
             pnlClick.TabIndex = 7;
             pnlClick.Visible = false;
             // 
@@ -228,7 +230,7 @@ namespace MacroMan.Forms
             // 
             btnCaptureMousePos.Location = new Point(250, 6);
             btnCaptureMousePos.Name = "btnCaptureMousePos";
-            btnCaptureMousePos.Size = new Size(180, 25);
+            btnCaptureMousePos.Size = new Size(192, 25);
             btnCaptureMousePos.TabIndex = 4;
             btnCaptureMousePos.Text = "Mouse Pos. Öğren (5sn)";
             btnCaptureMousePos.Click += BtnCaptureMousePos_Click;
@@ -283,7 +285,7 @@ namespace MacroMan.Forms
             pnlText.BorderStyle = BorderStyle.FixedSingle;
             pnlText.Controls.Add(lblText);
             pnlText.Controls.Add(txtText);
-            pnlText.Location = new Point(20, 331);
+            pnlText.Location = new Point(20, 293);
             pnlText.Name = "pnlText";
             pnlText.Size = new Size(450, 100);
             pnlText.TabIndex = 8;
@@ -312,7 +314,7 @@ namespace MacroMan.Forms
             btnOk.DialogResult = DialogResult.OK;
             btnOk.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnOk.ForeColor = Color.White;
-            btnOk.Location = new Point(280, 450);
+            btnOk.Location = new Point(382, 399);
             btnOk.Name = "btnOk";
             btnOk.Size = new Size(90, 35);
             btnOk.TabIndex = 9;
@@ -326,18 +328,31 @@ namespace MacroMan.Forms
             btnCancel.DialogResult = DialogResult.Cancel;
             btnCancel.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnCancel.ForeColor = Color.White;
-            btnCancel.Location = new Point(380, 450);
+            btnCancel.Location = new Point(286, 399);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(90, 35);
             btnCancel.TabIndex = 10;
             btnCancel.Text = "İptal";
             btnCancel.UseVisualStyleBackColor = false;
             // 
+            // chkStatus
+            // 
+            chkStatus.AutoSize = true;
+            chkStatus.Checked = true;
+            chkStatus.CheckState = CheckState.Checked;
+            chkStatus.Location = new Point(20, 93);
+            chkStatus.Name = "chkStatus";
+            chkStatus.Size = new Size(51, 19);
+            chkStatus.TabIndex = 11;
+            chkStatus.Text = "Aktif";
+            chkStatus.UseVisualStyleBackColor = true;
+            // 
             // ActionEditorForm
             // 
             AcceptButton = btnOk;
             CancelButton = btnCancel;
-            ClientSize = new Size(484, 491);
+            ClientSize = new Size(484, 443);
+            Controls.Add(chkStatus);
             Controls.Add(lblHotkey);
             Controls.Add(cmbHotkey);
             Controls.Add(grpModifiers);
@@ -399,7 +414,6 @@ namespace MacroMan.Forms
         private Label lblMouseBtn;
         private Label lblClickType;
         private Label lblText;
-
-
+        private CheckBox chkStatus;
     }
 }

@@ -96,6 +96,12 @@ namespace MacroMan.Services
 
                             var action = actions[i];
 
+                            if (action.Status == false)
+                            {
+                                Console.WriteLine($"Macro atlanıyor. Durum pasif");
+                                break;
+                            }
+                                
                             // Action'ı çalıştır
                             ExecuteAction(action);
 
@@ -183,7 +189,19 @@ namespace MacroMan.Services
                     case ActionType.Yaz:
                         if (!string.IsNullOrEmpty(action.TextToWrite))
                         {
-                            _inputSimulator.SendText(action.TextToWrite);
+                            //_inputSimulator.SendText(action.TextToWrite);
+                            //_inputSimulator.SendEnterToTarget();
+                            //_inputSimulator.SendKeyPress("enter");
+
+
+                            // 1) Metni doğrudan target handle'a gönder
+                            //_inputSimulator.SendTextToTarget(action.TextToWrite);
+                            // 2) Aynı handle'a Enter gönder
+                            //_inputSimulator.SendEnterToTarget();
+
+                            _inputSimulator.SendTextToTarget(action.TextToWrite);
+                            _inputSimulator.SendEnterToTarget();
+
                         }
                         break;
                 }

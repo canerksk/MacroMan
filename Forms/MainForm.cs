@@ -263,6 +263,7 @@ namespace MacroMan.Forms
                 var action = _macroActions[i];
                 string hotkey = GetHotkeyString(action);
                 string detail = GetActionDetail(action);
+                bool status = GetHotkeyStatus(action);
 
                 dgvActions.Rows.Add(
                     (i + 1).ToString(),
@@ -270,7 +271,8 @@ namespace MacroMan.Forms
                     action.WaitTimeMs + "ms",
                     action.ActionType.ToString(),
                     detail,
-                    ""
+                    "",
+                    status == true ? "Aktif" : "Pasif"
                 );
             }
 
@@ -297,6 +299,12 @@ namespace MacroMan.Forms
                 _ => ""
             };
         }
+
+        private bool GetHotkeyStatus(MacroAction action)
+        {
+            return action.Status;
+        }
+
 
         private void UpdateButtonStates(bool ignoreIsRunning = false)
         {
@@ -331,10 +339,12 @@ namespace MacroMan.Forms
 
         private void BtnEdit_Click(object sender, EventArgs e)
         {
-            if (dgvActions.SelectedRows.Count == 0) return;
+            if (dgvActions.SelectedRows.Count == 0) 
+                return;
 
             int index = dgvActions.SelectedRows[0].Index;
             var action = _macroActions[index];
+
 
             using (var form = new ActionEditorForm(action))
             {
@@ -766,6 +776,29 @@ namespace MacroMan.Forms
         {
             BtnScanClients_Click(btnScanClients, EventArgs.Empty);
         }
+
+        private void dgvActions_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Başlık satırına tıklanırsa çık
+            if (e.RowIndex < 0)
+                return;
+
+            if (dgvActions.SelectedRows.Count == 0)
+                return;
+
+            int index = dgvActions.SelectedRows[0].Index;
+            var action = _macroActions[index];
+
+            using (var form = new ActionEditorForm(action))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    _macroActions[index] = form.MacroAction;
+                    RefreshDataGrid();
+                }
+            }
+        }
+
 
 
     }

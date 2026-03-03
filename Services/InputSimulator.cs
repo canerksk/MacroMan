@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -22,11 +23,33 @@ namespace MacroMan.Services
         private const uint WM_SYSKEYDOWN = 0x0104;
         private const uint WM_SYSKEYUP = 0x0105;
         private const uint MAPVK_VK_TO_VSC = 0;
+
+        private const uint WM_CHAR = 0x0102;
+        private const uint WM_LBUTTONDOWN = 0x0201;
+        private const uint WM_LBUTTONUP = 0x0202;
+        private const uint WM_RBUTTONDOWN = 0x0204;
+        private const uint WM_RBUTTONUP = 0x0205;
+
         #endregion
+
 
         #region Mouse API (global mouse için)
         [DllImport("user32.dll")]
+        static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        private static extern short VkKeyScanEx(char ch, IntPtr dwhkl);
+
 
         [DllImport("user32.dll")]
         private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
@@ -56,8 +79,12 @@ namespace MacroMan.Services
                 ? 0u
                 : NativeMethods.GetWindowThreadId(_targetWindow);
 
-            Console.WriteLine($"[InputSimulator] Target window set: 0x{_targetWindow.ToInt64():X}, threadId={_targetThreadId}");
+            string title = NativeMethods.GetWindowText(_targetWindow);
+            string cls = NativeMethods.GetWindowClass(_targetWindow);
+
+            Console.WriteLine($"[InputSimulator] Target window set: 0x{_targetWindow.ToInt64():X}, threadId={_targetThreadId}, title='{title}', class='{cls}'");
         }
+
 
 
         public void SendKeyPress(string keyName, bool ctrl = false, bool alt = false, bool shift = false)
@@ -89,6 +116,53 @@ namespace MacroMan.Services
 
             SendKeyPressInternal(key, ctrl, alt, shift);
         }
+
+        public void SendTextByKeys(string text)
+        {
+            Console.WriteLine($"[SendTextByKeys] Text: '{text}'");
+
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            if (!HasValidTarget)
+            {
+                Console.WriteLine("[SendTextByKeys] Target yok, text atlanıyor.");
+                return;
+            }
+
+            // Hedef thread'in keyboard layout'unu al
+            IntPtr layout = NativeMethods.GetKeyboardLayout();
+
+            foreach (char c in text)
+            {
+                short vkShift = VkKeyScanEx(c, layout);
+
+                if (vkShift == -1)
+                {
+                    Console.WriteLine($"[SendTextByKeys] Char '{c}' için VK bulunamadı, atlanıyor.");
+                    continue;
+                }
+
+                byte vk = (byte)(vkShift & 0xFF);
+                byte shiftState = (byte)((vkShift >> 8) & 0xFF);
+
+                bool shift = (shiftState & 1) != 0;
+                bool ctrl = (shiftState & 2) != 0;
+                bool alt = (shiftState & 4) != 0;
+
+                Keys key = (Keys)vk;
+
+                Console.WriteLine($"[SendTextByKeys] Char '{c}' -> VK={vk}(0x{vk:X}), Ctrl={ctrl}, Alt={alt}, Shift={shift}");
+
+                // Burada senin zaten arkaplanda çalışan SendKeyPress yolunu kullanıyoruz
+                SendKeyPress(key, ctrl, alt, shift);
+
+                Thread.Sleep(10);
+            }
+
+            Console.WriteLine("[SendTextByKeys] Bitti.");
+        }
+
 
         private void SendKeyPressInternal(Keys key, bool ctrl, bool alt, bool shift)
         {
@@ -337,48 +411,152 @@ namespace MacroMan.Services
         // -----------------------------
         //  TEXT SEND
         // -----------------------------
-        public void SendText(string text)
+        public void SendTextToTarget(string text)
         {
-            Console.WriteLine($"[SendText] Text: '{text}'");
-            
-            if (!HasValidTarget)
+            Console.WriteLine($"[SendTextToTarget] Text: '{text}'");
+
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            if (_targetWindow == IntPtr.Zero)
             {
-                SendKeys.SendWait(text);
+                Console.WriteLine("[SendTextToTarget] Target window yok (0), text atlanıyor.");
                 return;
             }
 
+            // İstersen burada IsValidWindow kontrolü de yapabilirsin ama
+            // makro sırasında handle zaten biliniyor varsayıyoruz
             foreach (char c in text)
             {
-                SendKeys.SendWait(c.ToString());
+                // Karakteri direk hedef pencereye gönder
+                PostMessage(_targetWindow, WM_CHAR, (IntPtr)c, IntPtr.Zero);
                 Thread.Sleep(10);
             }
+
+            Console.WriteLine("[SendTextToTarget] WM_CHAR mesajları gönderildi.");
         }
+
+
+        public void SendText(string text)
+        {
+            Console.WriteLine($"[SendText] Text: '{text}'");
+
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            if (!HasValidTarget)
+            {
+                Console.WriteLine("[SendText] HasValidTarget = FALSE, hiçbir şey yapmıyorum.");
+                return; // SendKeys YOK ARTIK
+            }
+
+            Console.WriteLine($"[SendText] WM_CHAR ile target=0x{_targetWindow.ToInt64():X} penceresine yazılıyor...");
+
+            foreach (char c in text)
+            {
+                PostMessage(_targetWindow, WM_CHAR, (IntPtr)c, IntPtr.Zero);
+                Thread.Sleep(10);
+            }
+
+            Console.WriteLine("[SendText] WM_CHAR mesajları bitti.");
+        }
+
+
+
+        public void SendEnterToTarget()
+        {
+            const uint VK_RETURN = 0x0D;
+
+            // Hedef pencere yoksa: aktif pencereye Enter gönder
+            if (!HasValidTarget)
+            {
+                SendKeys.SendWait("{ENTER}");
+                return;
+            }
+
+            uint scanCode = MapVirtualKey(VK_RETURN, MAPVK_VK_TO_VSC);
+
+            // lParam formatı:
+            // bit 0-15: repeat count (1)
+            // bit 16-23: scan code
+            // bit 30: previous key state
+            // bit 31: transition state
+
+            IntPtr lParamDown = (IntPtr)((scanCode << 16) | 0x00000001);      // first press
+            IntPtr lParamUp = (IntPtr)((scanCode << 16) | 0xC0000001);      // key up
+
+            Console.WriteLine("[SendEnterToTarget] WM_KEYDOWN/UP VK_RETURN gönderiliyor");
+
+            PostMessage(_targetWindow, WM_KEYDOWN, (IntPtr)VK_RETURN, lParamDown);
+            Thread.Sleep(30);
+            PostMessage(_targetWindow, WM_KEYUP, (IntPtr)VK_RETURN, lParamUp);
+        }
+
 
         // -----------------------------
         //  MOUSE (global)
         // -----------------------------
+
         public void SendMouseClick(int x, int y, Models.MouseButton button, Models.ClickType clickType)
         {
             Console.WriteLine($"[MouseClick] X={x}, Y={y}, Button={button}, Type={clickType}");
-            
-            SetCursorPos(x, y);
-            Thread.Sleep(50);
 
-            uint downFlag = button == Models.MouseButton.Sol ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_RIGHTDOWN;
-            uint upFlag = button == Models.MouseButton.Sol ? MOUSEEVENTF_LEFTUP : MOUSEEVENTF_RIGHTUP;
+            if (!HasValidTarget)
+            {
+                Console.WriteLine("[MouseClick] Geçerli target yok, click atlanıyor.");
+                return;
+            }
+
+            // Ekran koordinatını client koordinatına çevir
+            POINT pt = new POINT { X = x, Y = y };
+            if (!ScreenToClient(_targetWindow, ref pt))
+            {
+                Console.WriteLine("[MouseClick] ScreenToClient başarısız, click atlanıyor.");
+                return;
+            }
+
+            int clientX = pt.X;
+            int clientY = pt.Y;
+
+            Console.WriteLine($"[MouseClick] client = ({clientX},{clientY})");
+
+            const uint WM_MOUSEMOVE = 0x0200;
+            const int MK_LBUTTON = 0x0001;
+            const int MK_RBUTTON = 0x0002;
+
+            uint downMsg = button == Models.MouseButton.Sol ? WM_LBUTTONDOWN : WM_RBUTTONDOWN;
+            uint upMsg = button == Models.MouseButton.Sol ? WM_LBUTTONUP : WM_RBUTTONUP;
+            int mouseKeyFlag = button == Models.MouseButton.Sol ? MK_LBUTTON : MK_RBUTTON;
 
             int clicks = clickType == Models.ClickType.Tek ? 1 : 2;
 
+            IntPtr lParam = (IntPtr)((clientY << 16) | (clientX & 0xFFFF));
+            IntPtr wParamDown = (IntPtr)mouseKeyFlag;
+
             for (int i = 0; i < clicks; i++)
             {
-                mouse_event(downFlag, 0, 0, 0, 0);
+                // Mouse'u o noktaya götürülmüş gibi göster
+                SendMessage(_targetWindow, WM_MOUSEMOVE, IntPtr.Zero, lParam);
                 Thread.Sleep(10);
-                mouse_event(upFlag, 0, 0, 0, 0);
+
+                // Down
+                SendMessage(_targetWindow, downMsg, wParamDown, lParam);
+                Thread.Sleep(10);
+
+                // Up
+                SendMessage(_targetWindow, upMsg, IntPtr.Zero, lParam);
+                Thread.Sleep(50);
 
                 if (i < clicks - 1)
                     Thread.Sleep(50);
             }
+
+            Console.WriteLine("[MouseClick] SendMessage ile click gönderildi.");
         }
+
+
+
+
 
         #region Key Name Parsing
         private Keys ParseKeyName(string keyName)

@@ -66,12 +66,14 @@ namespace MacroMan.Forms
             colType = new DataGridViewTextBoxColumn();
             colDetail = new DataGridViewTextBoxColumn();
             colProgress = new DataGridViewTextBoxColumn();
+            colStatus = new DataGridViewTextBoxColumn();
             pnlStatus = new Panel();
             lblStatus = new Label();
             progressBar = new ProgressBar();
             btnStart = new Button();
             btnStop = new Button();
             _notifyIcon = new NotifyIcon(components);
+            linkLabel1 = new LinkLabel();
             grpClient.SuspendLayout();
             grpSettings.SuspendLayout();
             ((ISupportInitialize)numRepeatCount).BeginInit();
@@ -200,7 +202,7 @@ namespace MacroMan.Forms
             // 
             lblCompletion.AutoSize = true;
             lblCompletion.ForeColor = Color.FromArgb(192, 255, 255);
-            lblCompletion.Location = new Point(190, 100);
+            lblCompletion.Location = new Point(190, 99);
             lblCompletion.Name = "lblCompletion";
             lblCompletion.Size = new Size(46, 15);
             lblCompletion.TabIndex = 3;
@@ -210,7 +212,7 @@ namespace MacroMan.Forms
             // 
             cmbCompletionAction.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbCompletionAction.Items.AddRange(new object[] { "Hiçbir Şey Yapma", "Client'ı Kapat", "Programı Kapat", "PC'yi Kapat" });
-            cmbCompletionAction.Location = new Point(242, 95);
+            cmbCompletionAction.Location = new Point(242, 96);
             cmbCompletionAction.Name = "cmbCompletionAction";
             cmbCompletionAction.Size = new Size(125, 23);
             cmbCompletionAction.TabIndex = 4;
@@ -388,7 +390,7 @@ namespace MacroMan.Forms
             dgvActions.AllowUserToDeleteRows = false;
             dgvActions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvActions.BackgroundColor = Color.FromArgb(64, 64, 64);
-            dgvActions.Columns.AddRange(new DataGridViewColumn[] { colIndex, colHotkey, colWait, colType, colDetail, colProgress });
+            dgvActions.Columns.AddRange(new DataGridViewColumn[] { colIndex, colHotkey, colWait, colType, colDetail, colProgress, colStatus });
             dgvActions.Location = new Point(20, 130);
             dgvActions.MultiSelect = false;
             dgvActions.Name = "dgvActions";
@@ -397,6 +399,7 @@ namespace MacroMan.Forms
             dgvActions.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvActions.Size = new Size(532, 271);
             dgvActions.TabIndex = 4;
+            dgvActions.CellDoubleClick += dgvActions_CellDoubleClick;
             // 
             // colIndex
             // 
@@ -412,6 +415,7 @@ namespace MacroMan.Forms
             colHotkey.HeaderText = "Tuş";
             colHotkey.Name = "colHotkey";
             colHotkey.ReadOnly = true;
+            colHotkey.Width = 80;
             // 
             // colWait
             // 
@@ -442,7 +446,12 @@ namespace MacroMan.Forms
             colProgress.HeaderText = "İlerleme";
             colProgress.Name = "colProgress";
             colProgress.ReadOnly = true;
-            colProgress.Width = 120;
+            // 
+            // colStatus
+            // 
+            colStatus.HeaderText = "Durum";
+            colStatus.Name = "colStatus";
+            colStatus.ReadOnly = true;
             // 
             // pnlStatus
             // 
@@ -499,9 +508,9 @@ namespace MacroMan.Forms
             btnStop.FlatStyle = FlatStyle.Popup;
             btnStop.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnStop.ForeColor = Color.White;
-            btnStop.Location = new Point(554, 35);
+            btnStop.Location = new Point(563, 35);
             btnStop.Name = "btnStop";
-            btnStop.Size = new Size(90, 30);
+            btnStop.Size = new Size(73, 30);
             btnStop.TabIndex = 3;
             btnStop.UseVisualStyleBackColor = false;
             btnStop.Click += BtnStop_Click;
@@ -512,12 +521,23 @@ namespace MacroMan.Forms
             _notifyIcon.Icon = (Icon)resources.GetObject("_notifyIcon.Icon");
             _notifyIcon.Text = "MacroMan V3";
             // 
+            // linkLabel1
+            // 
+            linkLabel1.AutoSize = true;
+            linkLabel1.Location = new Point(502, 490);
+            linkLabel1.Name = "linkLabel1";
+            linkLabel1.Size = new Size(171, 15);
+            linkLabel1.TabIndex = 7;
+            linkLabel1.TabStop = true;
+            linkLabel1.Text = "https://www.ultima-strike.com";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Black;
             ClientSize = new Size(685, 508);
+            Controls.Add(linkLabel1);
             Controls.Add(menuStrip);
             Controls.Add(grpClient);
             Controls.Add(grpSettings);
@@ -533,7 +553,7 @@ namespace MacroMan.Forms
             MaximizeBox = false;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Macroman V3.0 by Caner";
+            Text = "Macroman v3.0";
             FormClosing += MainForm_FormClosing;
             Load += MainForm_Load;
             Resize += MainForm_Resize;
@@ -598,5 +618,7 @@ namespace MacroMan.Forms
         private DataGridViewTextBoxColumn colType;
         private DataGridViewTextBoxColumn colDetail;
         private DataGridViewTextBoxColumn colProgress;
+        private DataGridViewTextBoxColumn colStatus;
+        private LinkLabel linkLabel1;
     }
 }
